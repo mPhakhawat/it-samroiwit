@@ -910,6 +910,24 @@
     
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+  // ปิดคลิกขวา
+  document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    alert('ห้ามคลิกขวานะจ๊ะ 😝');
+  });
+
+  // ปิดปุ่มลัด
+  document.addEventListener('keydown', e => {
+    if (e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) ||
+        (e.ctrlKey && e.key === 'U') ||
+        (e.ctrlKey && e.key === 'S')) {
+      e.preventDefault();
+      alert('อยากได้โค้ดไปใช้ก็ขอดี ๆ สิครับ 😭 ไม่ต้องแอบดูแบบนี้');
+    }
+  });
+</script>
     
     <script>
         // Global variables
