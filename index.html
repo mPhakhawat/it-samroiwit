@@ -1167,7 +1167,58 @@
     
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+// 1. ปิดคลิกขวา
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    alert("ห้ามคลิกขวานะครับ ");
+    return false;
+});
+
+// 2. ปิดปุ่มลัดที่ใช้บ่อย (Ctrl+A, Ctrl+C, Ctrl+X, Ctrl+S, Ctrl+U, F12 ฯลฯ)
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey || e.metaKey) { // Ctrl หรือ Cmd (Mac)
+        if (["a","c","x","s","u","A","C","X","S","U"].includes(e.key)) {
+            e.preventDefault();
+            alert("ไม่ให้กด Ctrl+" + e.key.toUpperCase() + " นะจ๊ะ ");
+            return false;
+        }
+    }
     
+    // ปิด F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+    if (e.key === "F12" || 
+       (e.ctrlKey && e.shiftKey && ["I","J","C"].includes(e.key))) {
+        e.preventDefault();
+        alert("อย่าแอบเปิด DevTools นะครับ 😈");
+        return false;
+    }
+});
+
+// 3. ปิดการลากเลือกข้อความ (กรณีที่ CSS user-select ยังไม่พอ)
+document.addEventListener('selectstart', function(e) {
+    e.preventDefault();
+});
+document.addEventListener('dragstart', function(e) {
+    e.preventDefault();
+});
+
+// 4. เพิ่มข้อความลอยเมื่อพยายามคัดลอก (ขำ ๆ)
+document.addEventListener('copy', function(e) {
+    e.preventDefault();
+    alert("คัดลอกไม่ได้หรอกน้าาา  ลองใหม่สิ");
+});
+</script>
+
+<!-- โบนัส: ทำให้หน้าเว็บเบลอเมื่อเปิด DevTools (คนส่วนใหญ่จะงง) -->
+<script>
+// ตรวจจับการเปิด DevTools (วิธีเบสิค)
+setInterval(function() {
+    if (window.outerHeight - window.innerHeight > 200 || 
+        window.outerWidth - window.innerWidth > 200) {
+        document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:200px;'>ห้ามเปิด DevTools นะครับ 😈</h1>";
+    }
+}, 1000);
+</script>
     <script>
         // Firebase Configuration
         const firebaseConfig = {
