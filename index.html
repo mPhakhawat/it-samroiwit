@@ -22,6 +22,27 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <script>
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        alert('ห้ามคลิกขวานะจ๊ะ 😘');
+    }, false);
+
+    <!-- 2. ปิดปุ่มลัดทั่วไป -->
+    document.onkeydown = function(e) {
+        // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+S, Ctrl+Shift+C
+        if (
+            e.keyCode == 123 || 
+            (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) ||
+            (e.ctrlKey && e.keyCode == 85) ||
+            (e.ctrlKey && e.keyCode == 83)
+        ) {
+            alert('ไม่ให้กดด้วยยย 🤭');
+            return false;
+        }
+    };
+    </script>
     
     <style>
         * {
@@ -983,11 +1004,15 @@
     
     <!-- Footer -->
     <footer class="footer">
-        <p>Copyright © 2025 Phakhawat. All rights reserved.</p>
+        <p>Copyright © 2025 Phakhawat Rattanapanop.</p>
     </footer>
     
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+
+
+    
     
     <script>
         // Firebase Configuration
