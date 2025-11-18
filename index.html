@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบแจ้งซ่อมอุปกรณ์คอมพิวเตอร์</title>
-    <link rel="shortcut icon" href="https://i.postimg.cc/KcstbwHt/android-chrome-192x192.png">
+      <link rel="shortcut icon" href="https://i.postimg.cc/KcstbwHt/android-chrome-192x192.png">
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -22,9 +22,6 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    
-    <!-- Compressor.js for image compression -->
-    <script src="https://cdn.jsdelivr.net/npm/compressorjs@1.2.1/dist/compressor.min.js"></script>
     
     <style>
         * {
@@ -167,243 +164,110 @@
             min-height: 100px;
         }
         
-        /* Enhanced File Upload */
-        .upload-container {
+        /* Modern File Upload */
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem;
             border: 2px dashed #2a5298;
             border-radius: 12px;
             background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .upload-container.dragover {
-            background: linear-gradient(135deg, #e8f0ff 0%, #d0e0ff 100%);
-            border-color: #1e3c72;
-            transform: scale(1.02);
-        }
-        
-        .upload-options {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .upload-btn {
-            flex: 1;
-            min-width: 150px;
-            padding: 1rem;
-            background: white;
-            border: 2px solid #2a5298;
-            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
+            font-family: 'Kanit', sans-serif;
         }
         
-        .upload-btn:hover {
-            background: #2a5298;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(42, 82, 152, 0.3);
+        .file-upload-label:hover {
+            background: linear-gradient(135deg, #e8f0ff 0%, #d0e0ff 100%);
+            border-color: #1e3c72;
         }
         
-        .upload-btn i {
-            font-size: 2rem;
+        .file-upload-label i {
+            font-size: 2.5rem;
             color: #2a5298;
         }
         
-        .upload-btn:hover i {
-            color: white;
+        .file-upload-text {
+            text-align: center;
         }
         
-        .upload-btn span {
-            font-family: 'Kanit', sans-serif;
-            font-weight: 500;
-        }
-        
-        .file-input {
-            display: none;
-        }
-        
-        .upload-text {
-            color: #666;
-            font-family: 'Kanit', sans-serif;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-        }
-        
-        .upload-text .highlight {
+        .file-upload-text h4 {
             color: #2a5298;
+            margin-bottom: 0.5rem;
             font-weight: 600;
         }
         
-        /* Image Preview Container */
-        .image-preview-container {
-            margin-top: 1.5rem;
+        .file-upload-text p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .file-upload-input {
+            position: absolute;
+            left: -9999px;
+        }
+        
+        .file-preview-container {
+            margin-top: 1rem;
+            position: relative;
             display: none;
         }
         
-        .image-preview-container.active {
+        .file-preview-container.active {
             display: block;
         }
         
-        .image-preview-wrapper {
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        .file-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
-        .image-preview {
-            width: 100%;
-            max-height: 400px;
-            object-fit: contain;
-            display: block;
-            cursor: zoom-in;
-            transition: transform 0.3s ease;
-        }
-        
-        .image-preview:hover {
-            transform: scale(1.02);
-        }
-        
-        .image-actions {
+        .remove-file {
             position: absolute;
             top: 10px;
             right: 10px;
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .image-action-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            background: #dc3545;
+            color: white;
             border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
-            font-size: 1.1rem;
+            transition: background 0.3s;
         }
         
-        .remove-image {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .remove-image:hover {
+        .remove-file:hover {
             background: #c82333;
-            transform: scale(1.1);
         }
         
-        .zoom-image {
-            background: #2a5298;
-            color: white;
-        }
-        
-        .zoom-image:hover {
-            background: #1e3c72;
-            transform: scale(1.1);
-        }
-        
-        .image-info {
+        /* Compression Progress */
+        .compression-progress {
             margin-top: 1rem;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
+            display: none;
             align-items: center;
-            flex-wrap: wrap;
             gap: 1rem;
         }
         
-        .image-details {
-            font-family: 'Kanit', sans-serif;
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        .compress-btn {
-            padding: 0.5rem 1rem;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: 'Kanit', sans-serif;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .compress-btn:hover {
-            background: #218838;
-            transform: translateY(-1px);
-        }
-        
-        .compress-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        /* Image Modal */
-        .image-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 10000;
-            cursor: zoom-out;
-        }
-        
-        .image-modal.active {
+        .compression-progress.active {
             display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-image {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-            animation: zoomIn 0.3s ease;
-        }
-        
-        @keyframes zoomIn {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        
-        /* Progress Bar */
-        .upload-progress {
-            margin-top: 1rem;
-            display: none;
-        }
-        
-        .upload-progress.active {
-            display: block;
         }
         
         .progress-bar {
-            width: 100%;
+            flex: 1;
             height: 8px;
             background: #e0e0e0;
             border-radius: 4px;
@@ -412,17 +276,16 @@
         
         .progress-fill {
             height: 100%;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
             width: 0%;
             transition: width 0.3s ease;
         }
         
         .progress-text {
-            margin-top: 0.5rem;
-            font-family: 'Kanit', sans-serif;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #666;
-            text-align: center;
+            min-width: 60px;
+            text-align: right;
         }
         
         /* Button Styles */
@@ -597,7 +460,7 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Connection Status */
+        /* Connection Status - Hidden by default */
         .connection-status {
             position: fixed;
             top: 20px;
@@ -607,19 +470,21 @@
             font-size: 0.85rem;
             font-weight: 500;
             z-index: 1000;
-            display: flex;
+            display: none;
             align-items: center;
             gap: 0.5rem;
             font-family: 'Kanit', sans-serif;
         }
         
         .connection-status.connected {
+            display: none;
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
         
         .connection-status.disconnected {
+            display: flex;
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
@@ -651,14 +516,6 @@
             
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .upload-options {
-                flex-direction: column;
-            }
-            
-            .upload-btn {
-                width: 100%;
             }
         }
         
@@ -894,20 +751,9 @@
     </style>
 </head>
 <body>
-    <!-- Connection Status -->
-    <div class="connection-status disconnected" id="connectionStatus">
-        <i class="fas fa-wifi"></i>
-        <span>กำลังเชื่อมต่อ...</span>
-    </div>
-    
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
-    </div>
-    
-    <!-- Image Zoom Modal -->
-    <div class="image-modal" id="imageModal" onclick="closeImageModal()">
-        <img id="modalImage" class="modal-image" src="" alt="Zoomed Image">
     </div>
     
     <!-- Header -->
@@ -987,56 +833,30 @@
                 
                 <div class="form-group">
                     <label>รูปภาพประกอบ (สูงสุด 1 รูป)</label>
-                    <div class="upload-container" id="uploadContainer">
-                        <div class="upload-options">
-                            <label class="upload-btn">
-                                <i class="fas fa-camera"></i>
-                                <span>ถ่ายรูป</span>
-                                <input type="file" class="file-input" id="cameraInput" accept="image/*" capture="environment" onchange="handleFileSelect(event, 'camera')">
-                            </label>
-                            <label class="upload-btn">
-                                <i class="fas fa-image"></i>
-                                <span>เลือกรูปภาพ</span>
-                                <input type="file" class="file-input" id="galleryInput" accept="image/*" onchange="handleFileSelect(event, 'gallery')">
-                            </label>
-                        </div>
-                        <div class="upload-text">
-                            <p>หรือ <span class="highlight">ลากไฟล์มาวาง</span> ที่นี่</p>
-                            <p>รองรับไฟล์ JPG, PNG, GIF ขนาดสูงสุด 20MB</p>
-                        </div>
+                    <div class="file-upload-wrapper">
+                        <label for="imageUpload" class="file-upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div class="file-upload-text">
+                                <h4>คลิกหรือลากไฟล์มาวางที่นี่</h4>
+                                <p>รองรับไฟล์รูปภาพ (JPG, PNG, GIF) - ขนาดสูงสุด 10MB</p>
+                            </div>
+                        </label>
+                        <input type="file" id="imageUpload" class="file-upload-input" accept="image/*" onchange="previewImage(event)">
                     </div>
                     
-                    <!-- Progress Bar -->
-                    <div class="upload-progress" id="uploadProgress">
+                    <!-- Compression Progress -->
+                    <div class="compression-progress" id="compressionProgress">
                         <div class="progress-bar">
                             <div class="progress-fill" id="progressFill"></div>
                         </div>
-                        <div class="progress-text" id="progressText">กำลังประมวลผล...</div>
+                        <div class="progress-text" id="progressText">0%</div>
                     </div>
                     
-                    <!-- Image Preview -->
-                    <div class="image-preview-container" id="imagePreviewContainer">
-                        <div class="image-preview-wrapper">
-                            <img id="imagePreview" class="image-preview" src="" alt="Preview" onclick="openImageModal(this.src)">
-                            <div class="image-actions">
-                                <button type="button" class="image-action-btn zoom-image" onclick="openImageModal(document.getElementById('imagePreview').src)">
-                                    <i class="fas fa-search-plus"></i>
-                                </button>
-                                <button type="button" class="image-action-btn remove-image" onclick="removeImage()">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="image-info">
-                            <div class="image-details" id="imageDetails">
-                                <span id="imageName">ชื่อไฟล์:</span> | 
-                                <span id="imageSize">ขนาด:</span> | 
-                                <span id="imageDimensions">ขนาดภาพ:</span>
-                            </div>
-                            <button type="button" class="compress-btn" id="compressBtn" onclick="compressImage()">
-                                <i class="fas fa-compress"></i> บีบอัดภาพ
-                            </button>
-                        </div>
+                    <div class="file-preview-container" id="filePreviewContainer">
+                        <img id="imagePreview" class="file-preview" alt="Preview">
+                        <button type="button" class="remove-file" onclick="removeImage()">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                 </div>
                 
@@ -1168,58 +988,7 @@
     
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-// 1. ปิดคลิกขวา
-document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    alert("ห้ามคลิกขวานะครับ ");
-    return false;
-});
-
-// 2. ปิดปุ่มลัดที่ใช้บ่อย (Ctrl+A, Ctrl+C, Ctrl+X, Ctrl+S, Ctrl+U, F12 ฯลฯ)
-document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey || e.metaKey) { // Ctrl หรือ Cmd (Mac)
-        if (["a","c","x","s","u","A","C","X","S","U"].includes(e.key)) {
-            e.preventDefault();
-            alert("ไม่ให้กด Ctrl+" + e.key.toUpperCase() + " นะจ๊ะ ");
-            return false;
-        }
-    }
     
-    // ปิด F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
-    if (e.key === "F12" || 
-       (e.ctrlKey && e.shiftKey && ["I","J","C"].includes(e.key))) {
-        e.preventDefault();
-        alert("อย่าแอบเปิด DevTools นะครับ 😈");
-        return false;
-    }
-});
-
-// 3. ปิดการลากเลือกข้อความ (กรณีที่ CSS user-select ยังไม่พอ)
-document.addEventListener('selectstart', function(e) {
-    e.preventDefault();
-});
-document.addEventListener('dragstart', function(e) {
-    e.preventDefault();
-});
-
-// 4. เพิ่มข้อความลอยเมื่อพยายามคัดลอก (ขำ ๆ)
-document.addEventListener('copy', function(e) {
-    e.preventDefault();
-    alert("คัดลอกไม่ได้หรอกน้าาา  ลองใหม่สิ");
-});
-</script>
-
-<!-- โบนัส: ทำให้หน้าเว็บเบลอเมื่อเปิด DevTools (คนส่วนใหญ่จะงง) -->
-<script>
-// ตรวจจับการเปิด DevTools (วิธีเบสิค)
-setInterval(function() {
-    if (window.outerHeight - window.innerHeight > 200 || 
-        window.outerWidth - window.innerWidth > 200) {
-        document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:200px;'>ห้ามเปิด DevTools นะครับ 😈</h1>";
-    }
-}, 1000);
-</script>
     <script>
         // Firebase Configuration
         const firebaseConfig = {
@@ -1241,14 +1010,14 @@ setInterval(function() {
         let currentTicketId = '';
         let isAdminLoggedIn = false;
         let ticketsUnsubscribe = null;
-        let currentImageFile = null;
-        let compressedImageBlob = null;
+        let compressedImageData = null;
+        let originalFileSize = 0;
+        let compressedFileSize = 0;
         
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             setupFirebaseListeners();
             setupDragAndDrop();
-            setupImageUpload();
             
             // Check admin login state on page load
             const adminState = sessionStorage.getItem('isAdminLoggedIn');
@@ -1260,247 +1029,38 @@ setInterval(function() {
             generateTicketId();
         });
         
-        // Setup Image Upload
-        function setupImageUpload() {
-            const uploadContainer = document.getElementById('uploadContainer');
-            
-            // Prevent default drag behaviors
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                uploadContainer.addEventListener(eventName, preventDefaults, false);
-                document.body.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            // Highlight drop area when item is dragged over it
-            ['dragenter', 'dragover'].forEach(eventName => {
-                uploadContainer.addEventListener(eventName, highlight, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                uploadContainer.addEventListener(eventName, unhighlight, false);
-            });
-            
-            // Handle dropped files
-            uploadContainer.addEventListener('drop', handleDrop, false);
-        }
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        function highlight(e) {
-            document.getElementById('uploadContainer').classList.add('dragover');
-        }
-        
-        function unhighlight(e) {
-            document.getElementById('uploadContainer').classList.remove('dragover');
-        }
-        
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            
-            if (files.length > 0) {
-                handleFileSelect({ target: { files: files } }, 'drop');
-            }
-        }
-        
-        // Handle file selection
-        async function handleFileSelect(event, source) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            // Check file type
-            if (!file.type.startsWith('image/')) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ไฟล์ไม่ถูกต้อง',
-                    text: 'กรุณาเลือกไฟล์รูปภาพเท่านั้น',
-                    confirmButtonText: 'ตกลง'
-                });
-                return;
-            }
-            
-            // Check file size (20MB limit)
-            const maxSize = 20 * 1024 * 1024; // 20MB
-            if (file.size > maxSize) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ไฟล์ใหญ่เกินไป',
-                    text: 'กรุณาเลือกไฟล์ที่มีขนาดไม่เกิน 20MB',
-                    confirmButtonText: 'ตกลง'
-                });
-                return;
-            }
-            
-            currentImageFile = file;
-            compressedImageBlob = null;
-            
-            // Show progress
-            showUploadProgress();
-            
-            try {
-                // Read and display the image
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    displayImagePreview(e.target.result, file);
-                    hideUploadProgress();
-                };
-                reader.readAsDataURL(file);
+        // Image Compression Function
+        function compressImage(file, quality = 0.7, maxWidth = 1920, maxHeight = 1080) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
                 
-                // Track source
-                console.log('Image source:', source);
-                
-            } catch (error) {
-                console.error('Error processing image:', error);
-                hideUploadProgress();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ข้อผิดพลาด',
-                    text: 'ไม่สามารถประมวลผลภาพได้ กรุณาลองใหม่',
-                    confirmButtonText: 'ตกลง'
-                });
-            }
-        }
-        
-        // Display image preview
-        function displayImagePreview(imageSrc, file) {
-            const preview = document.getElementById('imagePreview');
-            const container = document.getElementById('imagePreviewContainer');
-            const imageName = document.getElementById('imageName');
-            const imageSize = document.getElementById('imageSize');
-            const imageDimensions = document.getElementById('imageDimensions');
-            const compressBtn = document.getElementById('compressBtn');
-            
-            preview.src = imageSrc;
-            container.classList.add('active');
-            
-            // Update image info
-            imageName.textContent = `ชื่อไฟล์: ${file.name}`;
-            imageSize.textContent = `ขนาด: ${formatFileSize(file.size)}`;
-            
-            // Get image dimensions
-            const img = new Image();
-            img.onload = function() {
-                imageDimensions.textContent = `ขนาดภาพ: ${this.width}x${this.height}px`;
-                
-                // Enable compress button if image is large
-                if (file.size > 1024 * 1024) { // > 1MB
-                    compressBtn.disabled = false;
-                } else {
-                    compressBtn.disabled = true;
-                    compressBtn.innerHTML = '<i class="fas fa-check"></i> ขนาดเล็กพอ';
-                }
-            };
-            img.src = imageSrc;
-        }
-        
-        // Compress image
-        async function compressImage() {
-            if (!currentImageFile) return;
-            
-            showUploadProgress('กำลังบีบอัดภาพ...');
-            
-            try {
-                const compressedFile = await new Promise((resolve, reject) => {
-                    new Compressor(currentImageFile, {
-                        quality: 0.8,
-                        maxWidth: 1920,
-                        maxHeight: 1080,
-                        success(result) {
-                            resolve(result);
-                        },
-                        error(err) {
-                            reject(err);
-                        },
-                    });
-                });
-                
-                compressedImageBlob = compressedFile;
-                
-                // Update preview with compressed image
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    displayImagePreview(e.target.result, compressedFile);
-                    hideUploadProgress();
+                img.onload = function() {
+                    // Calculate new dimensions
+                    let { width, height } = img;
                     
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'บีบอัดภาพสำเร็จ',
-                        html: `
-                            <p>ขนาดก่อนบีบอัด: ${formatFileSize(currentImageFile.size)}</p>
-                            <p>ขนาดหลังบีบอัด: ${formatFileSize(compressedFile.size)}</p>
-                            <p>ประหยัดได้: ${Math.round((1 - compressedFile.size / currentImageFile.size) * 100)}%</p>
-                        `,
-                        confirmButtonText: 'ตกลง'
-                    });
+                    if (width > maxWidth || height > maxHeight) {
+                        const ratio = Math.min(maxWidth / width, maxHeight / height);
+                        width *= ratio;
+                        height *= ratio;
+                    }
+                    
+                    // Set canvas dimensions
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Draw and compress image
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Convert to blob with compression
+                    canvas.toBlob(function(blob) {
+                        resolve(blob);
+                    }, 'image/jpeg', quality);
                 };
-                reader.readAsDataURL(compressedFile);
                 
-            } catch (error) {
-                console.error('Compression error:', error);
-                hideUploadProgress();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'บีบอัดภาพไม่สำเร็จ',
-                    text: 'กรุณาลองใหม่',
-                    confirmButtonText: 'ตกลง'
-                });
-            }
-        }
-        
-        // Remove image
-        function removeImage() {
-            currentImageFile = null;
-            compressedImageBlob = null;
-            
-            document.getElementById('imagePreviewContainer').classList.remove('active');
-            document.getElementById('cameraInput').value = '';
-            document.getElementById('galleryInput').value = '';
-            
-            // Reset drag and drop
-            const uploadContainer = document.getElementById('uploadContainer');
-            uploadContainer.classList.remove('dragover');
-        }
-        
-        // Open image modal
-        function openImageModal(imageSrc) {
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            
-            modalImg.src = imageSrc;
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        // Close image modal
-        function closeImageModal() {
-            const modal = document.getElementById('imageModal');
-            modal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-        
-        // Show/hide upload progress
-        function showUploadProgress(text = 'กำลังประมวลผล...') {
-            const progress = document.getElementById('uploadProgress');
-            const progressText = document.getElementById('progressText');
-            const progressFill = document.getElementById('progressFill');
-            
-            progress.classList.add('active');
-            progressText.textContent = text;
-            progressFill.style.width = '50%';
-        }
-        
-        function hideUploadProgress() {
-            const progress = document.getElementById('uploadProgress');
-            const progressFill = document.getElementById('progressFill');
-            
-            progressFill.style.width = '100%';
-            
-            setTimeout(() => {
-                progress.classList.remove('active');
-                progressFill.style.width = '0%';
-            }, 300);
+                img.src = URL.createObjectURL(file);
+            });
         }
         
         // Format file size
@@ -1512,26 +1072,29 @@ setInterval(function() {
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
         
-        // Firebase Connection Status
+        // Update compression progress
+        function updateCompressionProgress(percent) {
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const compressionProgress = document.getElementById('compressionProgress');
+            
+            compressionProgress.classList.add('active');
+            progressFill.style.width = percent + '%';
+            progressText.textContent = percent + '%';
+            
+            if (percent >= 100) {
+                setTimeout(() => {
+                    compressionProgress.classList.remove('active');
+                }, 500);
+            }
+        }
+        
+        // Firebase Connection Status - Hidden by default
         function setupConnectionStatus() {
             const statusEl = document.getElementById('connectionStatus');
             
-            // Check initial connection
-            if (navigator.onLine) {
-                statusEl.className = 'connection-status connected';
-                statusEl.innerHTML = '<i class="fas fa-wifi"></i><span>เชื่อมต่อแล้ว</span>';
-            }
-            
-            // Listen for connection changes
-            window.addEventListener('online', () => {
-                statusEl.className = 'connection-status connected';
-                statusEl.innerHTML = '<i class="fas fa-wifi"></i><span>เชื่อมต่อแล้ว</span>';
-            });
-            
-            window.addEventListener('offline', () => {
-                statusEl.className = 'connection-status disconnected';
-                statusEl.innerHTML = '<i class="fas fa-wifi-slash"></i><span>ขาดการเชื่อมต่อ</span>';
-            });
+            // Connection status is hidden by default in CSS
+            // Only show when there's an error
         }
         
         // Setup Firebase Real-time Listeners
@@ -1550,12 +1113,11 @@ setInterval(function() {
                     // Update UI based on current page
                     updateCurrentPage();
                     
-                    // Update connection status
-                    const statusEl = document.getElementById('connectionStatus');
-                    statusEl.className = 'connection-status connected';
-                    statusEl.innerHTML = '<i class="fas fa-wifi"></i><span>เชื่อมต่อแล้ว</span>';
+                    // Connection successful - no status shown
                 }, (error) => {
                     console.error('Firebase error:', error);
+                    
+                    // Show error status only
                     const statusEl = document.getElementById('connectionStatus');
                     statusEl.className = 'connection-status disconnected';
                     statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>ข้อผิดพลาดในการเชื่อมต่อ</span>';
@@ -1581,6 +1143,48 @@ setInterval(function() {
                     loadAdminTicketList();
                 }
             });
+        }
+        
+        // Setup Drag and Drop
+        function setupDragAndDrop() {
+            const dropZone = document.querySelector('.file-upload-label');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight(e) {
+                dropZone.style.background = 'linear-gradient(135deg, #d0e0ff 0%, #b0d0ff 100%)';
+            }
+            
+            function unhighlight(e) {
+                dropZone.style.background = 'linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%)';
+            }
+            
+            dropZone.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    document.getElementById('imageUpload').files = files;
+                    previewImage({ target: { files: files } });
+                }
+            }
         }
         
         // Generate Ticket ID
@@ -1638,27 +1242,82 @@ setInterval(function() {
             }, 100);
         }
         
+        // Preview Image with Compression
+        async function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            const container = document.getElementById('filePreviewContainer');
+            
+            // Reset compression data
+            compressedImageData = null;
+            originalFileSize = 0;
+            compressedFileSize = 0;
+            
+            if (file) {
+                // Check file size (10MB limit)
+                if (file.size > 10 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไฟล์ใหญ่เกินไป',
+                        text: 'กรุณาเลือกไฟล์ที่มีขนาดไม่เกิน 10MB',
+                        confirmButtonText: 'ตกลง'
+                    });
+                    event.target.value = '';
+                    return;
+                }
+                
+                originalFileSize = file.size;
+                
+                try {
+                    // Show initial progress
+                    updateCompressionProgress(10);
+                    
+                    // Compress image
+                    const compressedBlob = await compressImage(file, 0.7, 1920, 1080);
+                    updateCompressionProgress(70);
+                    
+                    compressedFileSize = compressedBlob.size;
+                    
+                    // Convert to base64
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        compressedImageData = e.target.result;
+                        preview.src = compressedImageData;
+                        container.classList.add('active');
+                        updateCompressionProgress(100);
+                    };
+                    reader.readAsDataURL(compressedBlob);
+                    
+                } catch (error) {
+                    console.error('Compression error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ข้อผิดพลาดในการบีบอัด',
+                        text: 'ไม่สามารถบีบอัดรูปภาพได้ กรุณาลองใหม่',
+                        confirmButtonText: 'ตกลง'
+                    });
+                    event.target.value = '';
+                }
+            }
+        }
+        
+        // Remove Image
+        function removeImage() {
+            document.getElementById('imageUpload').value = '';
+            document.getElementById('filePreviewContainer').classList.remove('active');
+            document.getElementById('imagePreview').src = '';
+            compressedImageData = null;
+            originalFileSize = 0;
+            compressedFileSize = 0;
+        }
+        
         // Submit Ticket Form
         document.getElementById('ticketForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            if (!currentImageFile && !document.getElementById('imagePreview').src) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ยังไม่มีรูปภาพ',
-                    text: 'คุณต้องอัพโหลดรูปภาพประกอบก่อนส่งคำร้อง',
-                    confirmButtonText: 'ตกลง'
-                });
-                return;
-            }
-            
             showLoading();
             
             try {
-                // Get the image to upload (compressed if available, otherwise original)
-                const imageFile = compressedImageBlob || currentImageFile;
-                const imageBase64 = await fileToBase64(imageFile);
-                
                 const ticket = {
                     id: currentTicketId,
                     reporterName: document.getElementById('reporterName').value,
@@ -1666,9 +1325,9 @@ setInterval(function() {
                     department: document.getElementById('department').value,
                     equipmentType: document.getElementById('equipmentType').value,
                     problemDetail: document.getElementById('problemDetail').value,
-                    image: imageBase64,
-                    imageName: imageFile.name,
-                    imageSize: imageFile.size,
+                    image: compressedImageData || null,
+                    imageOriginalSize: originalFileSize,
+                    imageCompressedSize: compressedFileSize,
                     status: 'รอดำเนินการ',
                     adminComment: '',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1678,10 +1337,17 @@ setInterval(function() {
                 // Save to Firestore
                 await db.collection('tickets').doc(currentTicketId).set(ticket);
                 
+                let message = `หมายเลขรายการ: ${currentTicketId}`;
+                if (compressedImageData && originalFileSize > 0) {
+                    const savings = originalFileSize - compressedFileSize;
+                    const savingsPercent = ((savings / originalFileSize) * 100).toFixed(1);
+                    // Compression info removed from message
+                }
+                
                 Swal.fire({
                     icon: 'success',
                     title: 'ส่งคำร้องสำเร็จ',
-                    text: `หมายเลขรายการ: ${currentTicketId}`,
+                    text: message,
                     confirmButtonText: 'ตกลง'
                 }).then(() => {
                     document.getElementById('ticketForm').reset();
@@ -1701,16 +1367,6 @@ setInterval(function() {
                 hideLoading();
             }
         });
-        
-        // Convert file to base64
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-            });
-        }
         
         // Load Ticket List
         function loadTicketList() {
@@ -1826,9 +1482,7 @@ setInterval(function() {
                     <p style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-family: 'Kanit', sans-serif;">${ticket.problemDetail}</p>
                     ${ticket.image ? `
                         <div style="margin-top: 1rem;">
-                            <img src="${ticket.image}" style="max-width: 100%; max-height: 300px; border-radius: 8px; cursor: zoom-in;" 
-                                 onclick="openImageModal('${ticket.image}')" alt="Problem Image">
-                            ${ticket.imageSize ? `<p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">ขนาดไฟล์: ${formatFileSize(ticket.imageSize)}</p>` : ''}
+                            <img src="${ticket.image}" style="max-width: 100%; border-radius: 8px;">
                         </div>
                     ` : ''}
                     <p><strong>สถานะ:</strong> <span class="ticket-status status-${getStatusClass(ticket.status)}">${ticket.status}</span></p>
@@ -2009,7 +1663,7 @@ setInterval(function() {
             });
         }
         
-        // Generate PDF
+         // Generate PDF
     function generatePDF(ticketId) {
     const ticket = tickets.find(t => t.id === ticketId);
     if (!ticket) return;
