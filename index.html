@@ -18,6 +18,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -421,6 +425,34 @@
             100% { transform: rotate(360deg); }
         }
         
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .connection-status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .connection-status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
         /* Footer */
         .footer {
             background: #2a5298;
@@ -682,6 +714,12 @@
     </style>
 </head>
 <body>
+    <!-- Connection Status -->
+    <div class="connection-status disconnected" id="connectionStatus">
+        <i class="fas fa-wifi"></i>
+        <span>กำลังเชื่อมต่อ...</span>
+    </div>
+    
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
@@ -727,7 +765,7 @@
             </h2>
             <form id="ticketForm">
                 <div class="form-group">
-                    <label>รหัสแจ้งซ่อม (Auto Generate)</label>
+                    <label>หมายเลขรายการ (Auto Generate)</label>
                     <input type="text" id="ticketId" readonly style="background: #f5f5f5;">
                 </div>
                 
@@ -910,11 +948,11 @@
     
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
+     <script>
   // ปิดคลิกขวา
   document.addEventListener('contextmenu', e => {
     e.preventDefault();
-    alert('ห้ามคลิกขวานะจ๊ะ 😝');
+    alert('ห้ามคลิกขวานะครับบบ :D ');
   });
 
   // ปิดปุ่มลัด
@@ -924,21 +962,36 @@
         (e.ctrlKey && e.key === 'U') ||
         (e.ctrlKey && e.key === 'S')) {
       e.preventDefault();
-      alert('อยากได้โค้ดไปใช้ก็ขอดี ๆ สิครับ 😭 ไม่ต้องแอบดูแบบนี้');
+      alert('ทำอะไรเราดูคุณอยู่ :D');
     }
   });
 </script>
     
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDRebiQukEzyXQIESExV6VZl6mVJUF6xHw",
+            authDomain: "itsamroiwit.firebaseapp.com",
+            projectId: "itsamroiwit",
+            storageBucket: "itsamroiwit.firebasestorage.app",
+            messagingSenderId: "435068121724",
+            appId: "1:435068121724:web:fdcc2be0e39ee879d10ff9",
+            measurementId: "G-XM1FVS4JZY"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
         // Global variables
-        let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
-        let currentTicketId = generateTicketId();
+        let tickets = [];
+        let currentTicketId = '';
         let isAdminLoggedIn = false;
+        let ticketsUnsubscribe = null;
         
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('ticketId').value = currentTicketId;
-            updateDashboard();
+            setupFirebaseListeners();
             setupDragAndDrop();
             
             // Check admin login state on page load
@@ -946,7 +999,81 @@
             if (adminState === 'true') {
                 isAdminLoggedIn = true;
             }
+            
+            // Generate initial ticket ID
+            generateTicketId();
         });
+        
+        // Firebase Connection Status
+        function setupConnectionStatus() {
+            const statusEl = document.getElementById('connectionStatus');
+            
+            // Check initial connection
+            if (navigator.onLine) {
+                statusEl.className = 'connection-status connected';
+                statusEl.innerHTML = '<i class="fas fa-wifi"></i><span>เชื่อมต่อแล้ว</span>';
+            }
+            
+            // Listen for connection changes
+            window.addEventListener('online', () => {
+                statusEl.className = 'connection-status connected';
+                statusEl.innerHTML = '<i class="fas fa-wifi"></i><span>เชื่อมต่อแล้ว</span>';
+            });
+            
+            window.addEventListener('offline', () => {
+                statusEl.className = 'connection-status disconnected';
+                statusEl.innerHTML = '<i class="fas fa-wifi-slash"></i><span>ขาดการเชื่อมต่อ</span>';
+            });
+        }
+        
+        // Setup Firebase Real-time Listeners
+        function setupFirebaseListeners() {
+            setupConnectionStatus();
+            
+            // Real-time listener for tickets
+            ticketsUnsubscribe = db.collection('tickets')
+                .orderBy('createdAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    tickets = [];
+                    snapshot.forEach((doc) => {
+                        tickets.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // Update UI based on current page
+                    updateCurrentPage();
+                    
+                    // Update connection status
+                    const statusEl = document.getElementById('connectionStatus');
+                    statusEl.className = 'connection-status connected';
+                    statusEl.innerHTML = '<i class="fas fa-wifi"></i><span>เชื่อมต่อแล้ว</span>';
+                }, (error) => {
+                    console.error('Firebase error:', error);
+                    const statusEl = document.getElementById('connectionStatus');
+                    statusEl.className = 'connection-status disconnected';
+                    statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>ข้อผิดพลาดในการเชื่อมต่อ</span>';
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ข้อผิดพลาด',
+                        text: 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้',
+                        confirmButtonText: 'ตกลง'
+                    });
+                });
+        }
+        
+        // Update current page based on visibility
+        function updateCurrentPage() {
+            const activeContainers = document.querySelectorAll('.form-container.active');
+            activeContainers.forEach(container => {
+                if (container.id === 'ticket-list') {
+                    loadTicketList();
+                } else if (container.id === 'dashboard') {
+                    updateDashboard();
+                } else if (container.id === 'adminPanel') {
+                    loadAdminTicketList();
+                }
+            });
+        }
         
         // Setup Drag and Drop
         function setupDragAndDrop() {
@@ -991,14 +1118,16 @@
         }
         
         // Generate Ticket ID
-        function generateTicketId() {
+        async function generateTicketId() {
             const year = new Date().getFullYear();
-            const count = tickets.length + 1;
+            const snapshot = await db.collection('tickets').get();
+            const count = snapshot.size + 1;
             const paddedCount = count.toString().padStart(4, '0');
-            return `ITSW-${year}-${paddedCount}`;
+            currentTicketId = `ITSW-${year}-${paddedCount}`;
+            document.getElementById('ticketId').value = currentTicketId;
         }
         
-        // Show Page - Fixed version
+        // Show Page
         function showPage(pageId) {
             showLoading();
             
@@ -1018,7 +1147,7 @@
                     document.getElementById('navGrid').style.display = 'grid';
                 } else if (pageId === 'new-ticket') {
                     document.getElementById('new-ticket').classList.add('active');
-                    document.getElementById('ticketId').value = generateTicketId();
+                    generateTicketId();
                 } else if (pageId === 'ticket-list') {
                     document.getElementById('ticket-list').classList.add('active');
                     loadTicketList();
@@ -1079,37 +1208,51 @@
         }
         
         // Submit Ticket Form
-        document.getElementById('ticketForm').addEventListener('submit', function(e) {
+        document.getElementById('ticketForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const ticket = {
-                id: document.getElementById('ticketId').value,
-                reporterName: document.getElementById('reporterName').value,
-                reporterPosition: document.getElementById('reporterPosition').value,
-                department: document.getElementById('department').value,
-                equipmentType: document.getElementById('equipmentType').value,
-                problemDetail: document.getElementById('problemDetail').value,
-                image: document.getElementById('imagePreview').src || null,
-                status: 'รอดำเนินการ',
-                adminComment: '',
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
+            showLoading();
             
-            tickets.unshift(ticket);
-            localStorage.setItem('tickets', JSON.stringify(tickets));
-            
-            Swal.fire({
-                icon: 'success',
-                title: 'ส่งคำร้องสำเร็จ',
-                text: `หมายเลขรายการ: ${ticket.id}`,
-                confirmButtonText: 'ตกลง'
-            }).then(() => {
-                document.getElementById('ticketForm').reset();
-                removeImage();
-                document.getElementById('ticketId').value = generateTicketId();
-                showPage('home');
-            });
+            try {
+                const ticket = {
+                    id: currentTicketId,
+                    reporterName: document.getElementById('reporterName').value,
+                    reporterPosition: document.getElementById('reporterPosition').value,
+                    department: document.getElementById('department').value,
+                    equipmentType: document.getElementById('equipmentType').value,
+                    problemDetail: document.getElementById('problemDetail').value,
+                    image: document.getElementById('imagePreview').src || null,
+                    status: 'รอดำเนินการ',
+                    adminComment: '',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                // Save to Firestore
+                await db.collection('tickets').doc(currentTicketId).set(ticket);
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ส่งคำร้องสำเร็จ',
+                    text: `หมายเลขรายการ: ${currentTicketId}`,
+                    confirmButtonText: 'ตกลง'
+                }).then(() => {
+                    document.getElementById('ticketForm').reset();
+                    removeImage();
+                    generateTicketId();
+                    showPage('home');
+                });
+            } catch (error) {
+                console.error('Error saving ticket:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ข้อผิดพลาด',
+                    text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่',
+                    confirmButtonText: 'ตกลง'
+                });
+            } finally {
+                hideLoading();
+            }
         });
         
         // Load Ticket List
@@ -1239,25 +1382,40 @@
         }
         
         // Update Ticket (Admin)
-        function updateTicket(ticketId) {
-            const ticket = tickets.find(t => t.id === ticketId);
-            if (!ticket) return;
+        async function updateTicket(ticketId) {
+            showLoading();
             
-            ticket.status = document.getElementById('statusSelect').value;
-            ticket.adminComment = document.getElementById('adminComment').value;
-            ticket.updatedAt = new Date().toISOString();
-            
-            localStorage.setItem('tickets', JSON.stringify(tickets));
-            
-            Swal.fire({
-                icon: 'success',
-                title: 'อัพเดทสำเร็จ',
-                text: 'ข้อมูลได้รับการบันทึกเรียบร้อยแล้ว',
-                confirmButtonText: 'ตกลง'
-            }).then(() => {
-                closeModal();
-                loadAdminTicketList();
-            });
+            try {
+                const ticketRef = db.collection('tickets').doc(ticketId);
+                
+                const updateData = {
+                    status: document.getElementById('statusSelect').value,
+                    adminComment: document.getElementById('adminComment').value,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await ticketRef.update(updateData);
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'อัพเดทสำเร็จ',
+                    text: 'ข้อมูลได้รับการบันทึกเรียบร้อยแล้ว',
+                    confirmButtonText: 'ตกลง'
+                }).then(() => {
+                    closeModal();
+                    // Data will update automatically via real-time listener
+                });
+            } catch (error) {
+                console.error('Error updating ticket:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ข้อผิดพลาด',
+                    text: 'ไม่สามารถอัพเดทข้อมูลได้ กรุณาลองใหม่',
+                    confirmButtonText: 'ตกลง'
+                });
+            } finally {
+                hideLoading();
+            }
         }
         
         // Get Status Class
@@ -1307,7 +1465,7 @@
             `).join('');
         }
         
-        // Admin Login - Fixed version
+        // Admin Login
         document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -1337,7 +1495,7 @@
             }
         });
         
-        // Show Admin Panel - New function
+        // Show Admin Panel
         function showAdminPanel() {
             showLoading();
             
@@ -1357,7 +1515,7 @@
             }, 100);
         }
         
-        // Logout Admin - Fixed version
+        // Logout Admin
         function logoutAdmin() {
             Swal.fire({
                 title: 'ยืนยันการออกจากระบบ',
@@ -1388,7 +1546,7 @@
             });
         }
         
-        // Generate PDF
+         // Generate PDF
       function generatePDF(ticketId) {
     const ticket = tickets.find(t => t.id === ticketId);
     if (!ticket) return;
@@ -1466,7 +1624,6 @@
     setTimeout(() => hideLoading(), 1000);
 }
         
-        
         // Loading Functions
         function showLoading() {
             document.getElementById('loadingOverlay').classList.add('active');
@@ -1483,8 +1640,13 @@
                 closeModal();
             }
         }
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (ticketsUnsubscribe) {
+                ticketsUnsubscribe();
+            }
+        });
     </script>
-    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="base.js"></script>
 </body>
 </html>
