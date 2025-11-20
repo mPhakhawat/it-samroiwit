@@ -1751,14 +1751,11 @@
     doc.text('(' + ticket.reporterName + ')', 32, signatureY + 10);
     doc.text('' + ticket.reporterPosition + '', 35, signatureY + 20);
 
-    doc.text('ลงชื่อ.................................................', 110, signatureY);
-    doc.text('(นายภควรรษ รัตนภานพ)', 122, signatureY + 10);
-    doc.text('งานคอมพิวเตอร์และเครือข่าย', 117, signatureY + 20);
+    doc.text('ลงชื่อ.................................................', 180, signatureY);
+    doc.text('(นายภควรรษ รัตนภานพ)', 192, signatureY + 10);
+    doc.text('งานคอมพิวเตอร์และเครือข่าย', 187, signatureY + 20);
 
 
-    doc.text('ลงชื่อ.................................................', 200, signatureY);
-    doc.text('(นายสุเนตร จันทร์สว่าง)', 212, signatureY + 10);
-    doc.text('รองผู้อำนวยการกลุ่มบริหารงานทั่วไป', 200, signatureY + 20);
 
     // บันทึก PDF
     doc.save(`IT-Support-${ticket.id}.pdf`);
