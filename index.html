@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบแจ้งซ่อมอุปกรณ์คอมพิวเตอร์</title>
-     <link rel="shortcut icon" href="https://i.postimg.cc/KcstbwHt/android-chrome-192x192.png">
     
+    <link rel="shortcut icon" href="https://i.postimg.cc/KcstbwHt/android-chrome-192x192.png">
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -22,10 +22,8 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/gh/paponz/th-sarabun-new-jspdf@latest/thsarabunnew.js"></script>
-
-      <script>
+    
+     <script>
     document.addEventListener('contextmenu', function(e) {
         e.preventDefault();
         alert('ห้ามคลิกขวานะจ๊ะ 😘');
@@ -366,6 +364,16 @@
             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
         }
         
+        .btn-line {
+            background: linear-gradient(135deg, #00C300 0%, #00A000 100%);
+            color: white;
+        }
+        
+        .btn-line:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 195, 0, 0.4);
+        }
+        
         /* Card List */
         .card-list {
             display: grid;
@@ -508,6 +516,34 @@
         
         .connection-status.disconnected {
             display: flex;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* LINE Status */
+        .line-status {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .line-status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .line-status.disconnected {
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
@@ -771,9 +807,55 @@
             color: #333;
             font-family: 'Kanit', sans-serif;
         }
+        
+        /* LINE Settings */
+        .line-settings {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .line-settings h4 {
+            color: #2a5298;
+            margin-bottom: 1rem;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .line-settings h4 i {
+            color: #00C300;
+        }
+        
+        .line-status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-left: 1rem;
+        }
+        
+        .line-status-indicator.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .line-status-indicator.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
+    
+    
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
@@ -982,6 +1064,34 @@
                 </button>
             </div>
             
+            <!-- LINE Settings -->
+            <div class="line-settings">
+                <h4>
+                    <i class="fab fa-line"></i>
+                    การตั้งค่า LINE Messaging API
+                    <span class="line-status-indicator disconnected" id="lineStatusIndicator">
+                        <i class="fas fa-circle"></i>
+                        ไม่ได้เชื่อมต่อ
+                    </span>
+                </h4>
+                <div class="form-group">
+                    <label>LINE Channel Access Token</label>
+                    <input type="password" id="lineToken" placeholder="กรอก LINE Channel Access Token">
+                </div>
+                <div class="form-group">
+                    <label>LINE Group ID</label>
+                    <input type="text" id="lineGroupId" placeholder="กรอก LINE Group ID">
+                </div>
+                <button type="button" class="btn btn-line" onclick="saveLineSettings()">
+                    <i class="fab fa-line"></i>
+                    บันทึกการตั้งค่า LINE
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="testLineConnection()" style="margin-left: 0.5rem;">
+                    <i class="fas fa-plug"></i>
+                    ทดสอบการเชื่อมต่อ
+                </button>
+            </div>
+            
             <h2 style="margin-bottom: 1.5rem; color: #2a5298; font-family: 'Kanit', sans-serif;">
                 <i class="fas fa-user-shield"></i> แผงควบคุมแอดมิน
             </h2>
@@ -1036,11 +1146,16 @@
         let compressedImageData = null;
         let originalFileSize = 0;
         let compressedFileSize = 0;
+        let lineConfig = {
+            token: '',
+            groupId: ''
+        };
         
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             setupFirebaseListeners();
             setupDragAndDrop();
+            loadLineSettings();
             
             // Check admin login state on page load
             const adminState = sessionStorage.getItem('isAdminLoggedIn');
@@ -1051,6 +1166,131 @@
             // Generate initial ticket ID
             generateTicketId();
         });
+        
+        // LINE Messaging Functions
+        function loadLineSettings() {
+            const saved = localStorage.getItem('lineConfig');
+            if (saved) {
+                lineConfig = JSON.parse(saved);
+                document.getElementById('lineToken').value = lineConfig.token;
+                document.getElementById('lineGroupId').value = lineConfig.groupId;
+                updateLineStatus();
+            }
+        }
+        
+        function saveLineSettings() {
+            const token = document.getElementById('lineToken').value;
+            const groupId = document.getElementById('lineGroupId').value;
+            
+            if (!token || !groupId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณากรอกข้อมูลให้ครบ',
+                    text: 'ต้องระบุทั้ง LINE Token และ Group ID',
+                    confirmButtonText: 'ตกลง'
+                });
+                return;
+            }
+            
+            lineConfig = { token, groupId };
+            localStorage.setItem('lineConfig', JSON.stringify(lineConfig));
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'บันทึกสำเร็จ',
+                text: 'การตั้งค่า LINE ได้รับการบันทึกแล้ว',
+                confirmButtonText: 'ตกลง'
+            });
+            
+            updateLineStatus();
+        }
+        
+        function updateLineStatus() {
+            const statusEl = document.getElementById('lineStatus');
+            const indicatorEl = document.getElementById('lineStatusIndicator');
+            
+            if (lineConfig.token && lineConfig.groupId) {
+                statusEl.className = 'line-status connected';
+                statusEl.innerHTML = '<i class="fab fa-line"></i><span>LINE พร้อมใช้งาน</span>';
+                indicatorEl.className = 'line-status-indicator connected';
+                indicatorEl.innerHTML = '<i class="fas fa-circle"></i>เชื่อมต่อแล้ว';
+            } else {
+                statusEl.className = 'line-status disconnected';
+                statusEl.innerHTML = '<i class="fab fa-line"></i><span>LINE ไม่ได้เชื่อมต่อ</span>';
+                indicatorEl.className = 'line-status-indicator disconnected';
+                indicatorEl.innerHTML = '<i class="fas fa-circle"></i>ไม่ได้เชื่อมต่อ';
+            }
+        }
+        
+        async function sendLineNotification(message, ticketId = null) {
+            if (!lineConfig.token || !lineConfig.groupId) {
+                console.log('LINE not configured');
+                return false;
+            }
+            
+            try {
+                const response = await fetch('https://api.line.me/v2/bot/message/push', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${lineConfig.token}`
+                    },
+                    body: JSON.stringify({
+                        to: lineConfig.groupId,
+                        messages: [{
+                            type: 'text',
+                            text: message
+                        }]
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('LINE notification sent successfully');
+                    return true;
+                } else {
+                    console.error('LINE notification failed:', response.status);
+                    return false;
+                }
+            } catch (error) {
+                console.error('LINE notification error:', error);
+                return false;
+            }
+        }
+        
+        async function testLineConnection() {
+            if (!lineConfig.token || !lineConfig.groupId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณาตั้งค่า LINE ก่อน',
+                    text: 'ต้องระบุ LINE Token และ Group ID ก่อนทดสอบ',
+                    confirmButtonText: 'ตกลง'
+                });
+                return;
+            }
+            
+            showLoading();
+            
+            const testMessage = `🧪 ทดสอบการเชื่อมต่อ LINE\nเวลา: ${new Date().toLocaleString('th-TH')}`;
+            const success = await sendLineNotification(testMessage);
+            
+            hideLoading();
+            
+            if (success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'เชื่อมต่อสำเร็จ',
+                    text: 'ส่งข้อความทดสอบไปยัง LINE Group แล้ว',
+                    confirmButtonText: 'ตกลง'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เชื่อมต่อล้มเหลว',
+                    text: 'ไม่สามารถส่งข้อความไป LINE ได้\nกรุณาตรวจสอบ Token และ Group ID',
+                    confirmButtonText: 'ตกลง'
+                });
+            }
+        }
         
         // Image Compression Function
         function compressImage(file, quality = 0.7, maxWidth = 1920, maxHeight = 1080) {
@@ -1360,11 +1600,15 @@
                 // Save to Firestore
                 await db.collection('tickets').doc(currentTicketId).set(ticket);
                 
+                // Send LINE notification
+                const lineMessage = `🔔 แจ้งซ่อมใหม่\n\n📋 หมายเลข: ${currentTicketId}\n👤 ผู้แจ้ง: ${ticket.reporterName}\n📍 ตำแหน่ง: ${ticket.reporterPosition}\n🏢 สถานที่: ${ticket.department}\n💻 อุปกรณ์: ${ticket.equipmentType}\n📝 ปัญหา: ${ticket.problemDetail.substring(0, 100)}${ticket.problemDetail.length > 100 ? '...' : ''}`;
+                await sendLineNotification(lineMessage, currentTicketId);
+                
                 let message = `หมายเลขรายการ: ${currentTicketId}`;
                 if (compressedImageData && originalFileSize > 0) {
                     const savings = originalFileSize - compressedFileSize;
                     const savingsPercent = ((savings / originalFileSize) * 100).toFixed(1);
-                    // Removed compression info from success message
+                    // Removed compression info from message
                 }
                 
                 Swal.fire({
@@ -1408,7 +1652,7 @@
                     </div>
                     <p><strong>ชื่อผู้แจ้ง:</strong> ${ticket.reporterName}</p>
                     <p><strong>ตำแหน่ง:</strong> ${ticket.reporterPosition}</p>
-                    <p><strong>งาน/ฝ่าย/หมวด/ห้อง:</strong> ${ticket.department}</p>
+                    <p><strong>งาน/ฝ่าย:</strong> ${ticket.department}</p>
                     <p><strong>ประเภทอุปกรณ์:</strong> ${ticket.equipmentType}</p>
                     <div style="margin-top: 1rem;">
                         <button class="btn btn-primary" onclick="showTicketDetail('${ticket.id}')">
@@ -1441,7 +1685,7 @@
                     </div>
                     <p><strong>ชื่อผู้แจ้ง:</strong> ${ticket.reporterName}</p>
                     <p><strong>ตำแหน่ง:</strong> ${ticket.reporterPosition}</p>
-                    <p><strong>งาน/ฝ่าย/หมวด/ห้อง:</strong> ${ticket.department}</p>
+                    <p><strong>งาน/ฝ่าย:</strong> ${ticket.department}</p>
                     <p><strong>ประเภทอุปกรณ์:</strong> ${ticket.equipmentType}</p>
                     <div style="margin-top: 1rem;">
                         <button class="btn btn-primary" onclick="showTicketDetail('${ticket.id}', true)">
@@ -1499,7 +1743,7 @@
                     <p><strong>หมายเลขรายการ:</strong> ${ticket.id}</p>
                     <p><strong>ชื่อผู้แจ้ง:</strong> ${ticket.reporterName}</p>
                     <p><strong>ตำแหน่ง:</strong> ${ticket.reporterPosition}</p>
-                    <p><strong>งาน/ฝ่าย/หมวด/ห้อง:</strong> ${ticket.department}</p>
+                    <p><strong>งาน/ฝ่าย:</strong> ${ticket.department}</p>
                     <p><strong>ประเภทอุปกรณ์:</strong> ${ticket.equipmentType}</p>
                     <p><strong>รายละเอียดปัญหา:</strong></p>
                     <p style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-family: 'Kanit', sans-serif;">${ticket.problemDetail}</p>
@@ -1527,6 +1771,8 @@
             
             try {
                 const ticketRef = db.collection('tickets').doc(ticketId);
+                const ticket = tickets.find(t => t.id === ticketId);
+                const oldStatus = ticket.status;
                 
                 const updateData = {
                     status: document.getElementById('statusSelect').value,
@@ -1535,6 +1781,12 @@
                 };
                 
                 await ticketRef.update(updateData);
+                
+                // Send LINE notification for status change
+                if (oldStatus !== updateData.status) {
+                    const statusMessage = `🔄 อัพเดทสถานะ\n\n📋 หมายเลข: ${ticketId}\n👤 ผู้แจ้ง: ${ticket.reporterName}\n📊 สถานะเดิม: ${oldStatus}\n📊 สถานะใหม่: ${updateData.status}\n💬 ความเห็น: ${updateData.adminComment || '-'}`;
+                    await sendLineNotification(statusMessage, ticketId);
+                }
                 
                 Swal.fire({
                     icon: 'success',
@@ -1686,9 +1938,7 @@
             });
         }
         
-        
-            
-             // Generate PDF
+        // Generate PDF
     function generatePDF(ticketId) {
     const ticket = tickets.find(t => t.id === ticketId);
     if (!ticket) return;
@@ -1782,7 +2032,7 @@
     doc.save(`IT-Support-${ticket.id}.pdf`);
 
     setTimeout(() => hideLoading(), 1000);
-}
+        }
         
         // Loading Functions
         function showLoading() {
