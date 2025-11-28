@@ -32,7 +32,7 @@ document.addEventListener('keydown', function(e) {
     if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) {
         e.preventDefault();
         e.stopPropagation();
-        alert('ห้ามดูโค้ดนะจ๊ะ เดี๋ยวโดนจับ! 😈');
+        alert('What do you do ?');
         return false;
     }
 
@@ -48,7 +48,7 @@ document.addEventListener('keydown', function(e) {
     ) {
         e.preventDefault();
         e.stopPropagation();
-        alert('ไม่ให้เปิด DevTools นะครับบบ 🤭');
+        alert('What do you do ? 🤭');
         return false;
     }
 }, true); // ใช้ capture phase เพื่อให้บล็อกก่อนใคร
@@ -60,7 +60,7 @@ setInterval(function() {
     if (window.location.href.startsWith('view-source:')) {
         document.documentElement.innerHTML = `
             <div style="font-family: Arial; text-align:center; margin-top:200px; color:red; font-size:30px;">
-                <h1>ห้ามดู Source นะครับ! 😡</h1>
+                <h1>What do you do ? </h1>
                 <p>กลับไปใช้เว็บปกติเถอะน้าา</p>
             </div>`;
         throw new Error("View Source Blocked");
@@ -72,7 +72,7 @@ setInterval(function() {
 // ──────────────────────────────────────────────────
 document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
-    alert('คลิกขวาไม่ได้น้าา อยากได้โค้ดเหรอ? ฝันไปเถอะ 😘');
+    alert('What do you do ? 😘');
 });
 
 // ──────────────────────────────────────────────────
@@ -82,7 +82,7 @@ setInterval(function() {
     var before = new Date();
     debugger; // ถ้า DevTools เปิดอยู่ คำสั่งนี้จะหยุดนานมาก
     if (new Date() - before > 100) {
-        document.body.innerHTML = '<h1 style="color:red; text-align:center; margin-top:200px;">เจอแล้วว! เปิด DevTools ใช่ไหม? เว็บพังเลยนะจ๊ะ 😈</h1>';
+        document.body.innerHTML = '<h1 style="color:red; text-align:center; margin-top:200px;">What do you do ? 😈</h1>';
         document.body.style.pointerEvents = 'none';
     }
 }, 500);
